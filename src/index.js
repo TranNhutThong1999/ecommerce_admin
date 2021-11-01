@@ -3,21 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux'
-import store from './store/index'
+import {Provider} from 'react-redux'
+import store from './redux/store'
 ReactDOM.render(
- 
-    <React.StrictMode> 
-   
+  <React.StrictMode>
     <Provider store={store}>
-       <BrowserRouter>
+      <BrowserRouter>
         <App />
-        </BrowserRouter>
-        </Provider>
-      
-    </React.StrictMode>
- ,
+      </BrowserRouter>
+    </Provider>
+  </React.StrictMode>,
   document.getElementById('root')
 );
 
