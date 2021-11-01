@@ -1,0 +1,27 @@
+.d-flex {
+    display: flex;
+}
+
+.full-height {
+    height: 100vh;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.flex-direction-column {
+    flex-direction: column;
+}
+
+.float-right {
+    float: right;
+}

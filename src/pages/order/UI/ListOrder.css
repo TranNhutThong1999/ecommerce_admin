@@ -1,0 +1,29 @@
+.list-order {
+    width: 98%;
+    height: 500px;
+}
+
+.list-order table {
+    width: 100%;
+    margin-top: 2%;
+    border-collapse: collapse;
+}
+
+.list-order .list-ordertr:first-child {
+    color: rgb(107, 107, 107);
+    margin-bottom: 2%;
+}
+
+.list-order tr:not(:first-child) th {
+    padding: 2% 0;
+}
+
+.list-order .button {
+    margin: 1% 0;
+    margin-right: 4%;
+}
+
+.list-order .button button {
+    font-size: 20px;
+    background-color: burlywood;
+}

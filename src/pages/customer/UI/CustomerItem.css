@@ -1,0 +1,17 @@
+.highlight {
+    background-color: rgba(235, 225, 225, 0.884);
+}
+
+.list-customer button {
+    background-color: brown;
+    margin: 1%;
+}
+
+.list-customer .edit {
+    background-color: burlywood;
+}
+
+.list-customer .delete {
+    background-color: brown;
+    color: white;
+}

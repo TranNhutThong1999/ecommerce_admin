@@ -1,0 +1,20 @@
+.highlight {
+    background-color: rgba(235, 225, 225, 0.884);
+}
+
+.list-order button {
+    margin: 1%;
+}
+
+.list-order .add {
+    background-color: antiquewhite;
+}
+
+.list-order .edit {
+    background-color: burlywood;
+}
+
+.list-order .delete {
+    background-color: brown;
+    color: white;
+}

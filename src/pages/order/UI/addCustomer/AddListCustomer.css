@@ -1,0 +1,51 @@
+.customer-search {
+    width: 50%;
+}
+
+.customer-search h4 {
+    margin: 0;
+}
+
+.customer-search .title {
+    text-align: center;
+}
+
+.customer-search .search {
+    width: 95%;
+    margin: 0 auto;
+    margin-bottom: 2%;
+}
+
+.customer-search form {
+    width: 100%;
+}
+
+.customer-search input {
+    width: 90%;
+}
+
+.customer-search .content {
+    width: 95%;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.customer-search table {
+    width: 100%;
+    margin-top: 2%;
+    border-collapse: collapse;
+}
+
+.customer-search tr:first-child {
+    text-align: center;
+    background-color: #acacac;
+}
+
+.customer-search tr {
+    border-bottom: 1px solid rgba(172, 172, 172, 0.568);
+}
+
+.customer-search th {
+    padding: 2% 0
+}
