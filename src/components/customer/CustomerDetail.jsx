@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, Button, message, Radio  } from 'antd';
+import { Form, Input, InputNumber, Button, message, Radio, DatePicker  } from 'antd';
 import { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router';
 import customerAPI from '../../api/customerAPI';
@@ -20,6 +20,8 @@ const validateMessages = {
         range: '${label} must be between ${min} and ${max}',
     },
     };
+
+    const dateFormat = 'YYYY/MM/DD';
 const CustomerDetail=()=>{
     const history = useHistory();
     const param = useParams();
@@ -43,9 +45,10 @@ const CustomerDetail=()=>{
         })
     }
 
-    const onFinish=({name, phone, age, address, gender})=>{
+    const onFinish=({name, phone, date, address, gender})=>{
+        console.log(date);
         const value ={
-            name, phone, age, address, gender, isDeleted:false
+            name, phone, date, address, gender, isDeleted:false
         }
         if (param.customerId) {
             customerAPI.editOneCustomer(param.customerId, value);
@@ -56,7 +59,7 @@ const CustomerDetail=()=>{
         success()
         form.setFieldsValue({
             name:'',
-                age:0,
+                date:0,
                 gender:'Female',
                 address:'',
                 phone:''
@@ -65,6 +68,9 @@ const CustomerDetail=()=>{
     const success = () => {
         message.success('Successfully');
     };
+    
+    const customFormat = value => console.log(value);
+
 
     const cancelButtonHandler=()=>{
         history.push('/customer');
@@ -101,20 +107,24 @@ const CustomerDetail=()=>{
                     {
                         required: true,
                     },
+                    // {
+                    //     pattern:"(84|0[3|5|7|8|9])+([0-9]{8})\b",
+                    //     message:"wrong format"
+                    // }
                 ]}
             >
-                <InputNumber  />
+                <Input />
             </Form.Item>
             <Form.Item
-                name={'age'}
-                label="Age"
-                rules={[
-                    {
-                        required: true,
-                    },
-                ]}
+                name={'date'}
+                label="Date"
+                // rules={[
+                //     {
+                //         required: true,
+                //     },
+                // ]}
             >
-                <InputNumber  />
+                {/* <DatePicker format={customFormat}/>  */}
             </Form.Item>
             <Form.Item
                 name={'gender'}

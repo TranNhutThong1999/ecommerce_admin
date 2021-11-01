@@ -1,50 +1,55 @@
-import { Select, Space, Divider, Row, Col, Descriptions, Input, Form, Button } from 'antd';
+import { Select, Space, Divider, Row, Col, Descriptions, Input, Form, DatePicker } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import {orderActions} from '../../redux/store/OrderSlice';
 import BorderLayout from '../common/BorderLayout';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
+import customerAPI from '../../api/customerAPI';
+
 
 const CustomerOrder =({form})=>{
     const { Option } = Select;
-    const dispatch = useDispatch()
-    const dataStore = useSelector(state => state.orderSlice);
-    const listCustomer = dataStore.listCustomer;
-    const customer = dataStore.order.customerCart;
+    const [listCustomer, setListCustomer]= useState([]);
+    const [customer, setCustomer] =useState();
     
     useEffect(()=>{
-        dispatch(orderActions.loadListCustomer());
+        fetchCustomers()
     },[])
+    const fetchCustomers =async()=>{
+        const response = await customerAPI.getCustomers();
+        const data = response.data;
+        const filter =Object.keys(data).filter(e=> data[e].isDeleted===false);
+        setListCustomer(filter.map((e,index)=>{return {id:e , ...data[e], key:(index+1)}}));
+    }
 
     const changeValueSelectedHandler =(value) => {
         const index = listCustomer.findIndex(data => data.id ===value);
-        dispatch(orderActions.addCustomerOrder(listCustomer[index]))
-        form.setFieldsValue({address:listCustomer[index].address});
+        setCustomer(listCustomer[index])
+        form.setFieldsValue({
+            address: listCustomer[index].address,
+            phone:listCustomer[index].phone,
+            nameCustomer:listCustomer[index].name
+        })
+       
     }      
-    const changeAddressHandler=(e)=>{
-            if(form.getFieldError('address').length===0){
-              dispatch(orderActions.setAddressCustomerOrder(e.target.value));
-            }
-    }
-
     const renderOptions=()=>{
        return listCustomer.map((item, index) => 
        <Option  key={index} 
                 value={item.id}
                 >
-            <Space split={<Divider type="vertical" style={{backgroundColor:"red"}} />} >
-                <div>{item.id}</div>
-                <div>{item.name}</div>
-                <div>{item.phone}</div>
-            </Space>
+                <Row>
+                    <Col style={{textAlign:"center"}} span={8}>{item.id}</Col>
+                    <Col style={{textAlign:"center"}} span={8}>{item.name}</Col>
+                    <Col style={{textAlign:"center"}} span={8}>{item.phone}</Col>
+                </Row>
+        
        </Option>)
+       
     }
     const filterOption=(input, option) =>{
         if(listCustomer[option.key]){
             return  listCustomer[option.key].id.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-            listCustomer[option.key].name.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-            listCustomer[option.key].phone.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            listCustomer[option.key].name.toLowerCase().indexOf(input.toLowerCase()) >= 0  
+            // ||
+            // listCustomer[option.key].phone+"".toLowerCase().indexOf(input.toLowerCase()) > 0
         }  
     }
     return (
@@ -71,6 +76,8 @@ const CustomerOrder =({form})=>{
                         {renderOptions()}
                     </Select>
                     </Form.Item>
+                    <Form.Item hidden={true} name="phone"> <Input /></Form.Item>
+                    <Form.Item hidden={true} name="nameCustomer"> <Input /></Form.Item>
                     {customer && <Row style={{marginTop:"5%"}}>
                         <Col span={16} style={{display:"flex", flexWrap:"wrap"}}>
                             <Descriptions title="ID" style={{width:"50%"}}> 
@@ -79,14 +86,17 @@ const CustomerOrder =({form})=>{
                             <Descriptions title="Name"  style={{width:"50%"}}> 
                                 <Descriptions.Item>{customer.name}</Descriptions.Item>
                             </Descriptions>
+                          
                             <Descriptions title="Phone"  style={{width:"50%"}}> 
                                 <Descriptions.Item>{customer.phone}</Descriptions.Item>
                             </Descriptions>
+                           
                             <Descriptions title="Gender"  style={{width:"50%"}}> 
                                 <Descriptions.Item>{customer.gender}</Descriptions.Item>
                             </Descriptions>
-                            <Descriptions title="Age"  style={{width:"50%"}}> 
-                                <Descriptions.Item>{customer.age}</Descriptions.Item>
+                            <Descriptions title="Date"  style={{width:"50%"}}> 
+                            
+                                <Descriptions.Item>{customer.age}</Descriptions.Item> 
                             </Descriptions>
                             <Descriptions title="Address" style={{width:"50%"}}> 
                                 <Descriptions.Item> {customer.address}</Descriptions.Item>
@@ -102,7 +112,7 @@ const CustomerOrder =({form})=>{
                                               message: 'Address can not be null',
                                             },
                                           ]}>
-                                            <Input onChange={changeAddressHandler}/>
+                                            <Input />
                                         </Form.Item>
                                 </Descriptions.Item>
                             </Descriptions>  

@@ -2,7 +2,7 @@ import { message, Table, Popconfirm } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router';
 import { useEffect, useState } from 'react';
-import orderAPI from '../../api/OrderAPI';
+import orderAPI from '../../api/orderAPI';
 
 const ListOrder=()=>{
     const [listOrder, setListOrder]= useState([]);

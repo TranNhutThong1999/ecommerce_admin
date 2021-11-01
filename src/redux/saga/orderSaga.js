@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import orderAPI from '../../api/OrderAPI';
+import orderAPI from '../../api/orderAPI';
 import customerAPI from '../../api/customerAPI';
 import productAPI from '../../api/productAPI';
 import { orderActions } from '../store/OrderSlice';

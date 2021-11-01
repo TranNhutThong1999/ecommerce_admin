@@ -1,67 +1,147 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Form, Select, InputNumber, Popconfirm, Typography, Button } from 'antd';
-import { useSelector } from 'react-redux';
-import { orderActions } from '../../redux/store/OrderSlice';
-import { useDispatch } from 'react-redux';
+import productAPI from '../../api/productAPI'
+import SelectForm from './SelectForm';
 
-const ProductOrder = ({form}) => {    
-    const dataStore = useSelector(state => state.orderSlice);
-    const ListProduct= dataStore.listProduct;
-    const productsCart= dataStore.order.productsCart;
-    const editingKey= dataStore.editingKey;
-    const dispatch = useDispatch();
-    const { Option } = Select;
+const EditableCell = ({
+  editing,
+  dataIndex,
+  title,
+  inputType,
+  record,
+  index,
+  children,
+  dataOption,
+  productCart,
+  ...restProps
+}) => {
+  const inputNode = inputType==='select' ? <SelectForm dataOption={dataOption} /> : <InputNumber min="0" />;
+  return (
+    <td {...restProps}>
+      {editing ? (
+        <Form.Item
+          name={dataIndex}
+          style={{
+            margin: 0,
+          }}
+          rules={[
+            {
+              required: true,
+              message: `Please Input ${title}!`,
+            },
+            {
+              validator: async (rule, value) => {
+                if(rule.field ==="productId"){
+                  const index = productCart.findIndex(e=> value!== '' & e.productId === value );                
+                  if(index !== -1){
+                    throw new Error("Product exists")
+                  }
+                }
+              }    
+            }
+          ]}
+        >
+          {inputNode}
+        </Form.Item>
+      ) : (
+        children
+      )}
+    </td>
+  );
+};
 
+const ProductOrder = ({form, onChange}) => {    
+    const [products, setProducts]=useState([]);
+    const [productCart, setProductCart]=useState([]);
+    const [editingKey, setEditingKey] =useState();
     const isEditing = (record) => record.key === editingKey;
-    const productChangehandler=(value)=>{
-          const data ={
-            index: editingKey,
-            id:value
+
+    const total = () => {
+      if(productCart){
+        return productCart.reduce((x1, x2) => {
+            return x1 + x2.price * x2.quantity * ((100 - x2.discount) / 100);
+        }, 0);
+      } return 0
+    };
+
+    const edit = (record) => {
+      setEditingKeyHandler(record.key)
+    };
+ 
+    const save=  (record)=>{
+      const key = Object.keys(productCart[0]);
+      console.log(key);
+        form.validateFields(key).then(values =>{
+            const dataForm =form.getFieldValue();
+            console.log(dataForm);
+            const product = products.filter(e=>e.id === dataForm.productId);
+          
+            const data ={
+            productId: product[0].id,
+            price: product[0].price,
+            discount: dataForm.discount,
+            quantity: dataForm.quantity
           }
-          dispatch(orderActions.chooseProduct(data))
+          setProductCart(prev=>{
+            let tranfer = [...prev];
+            tranfer = tranfer.filter((e,index)=> index !== tranfer.length-1);
+            return [...tranfer, data]
+          })
+
+          setDefaultEditingKey()
+          
+      }).catch(err=>{
+        console.log("err");
+        console.log(productCart);
+        return;
+      })
+    }
+      onChange(productCart)
+    const setEditingKeyHandler =(value)=>{
+        setEditingKey(value)
     }
 
-    const setEditingKey =(value)=>{
-      dispatch(orderActions.setEditingKey(value));
-    }
-
-    const setDefaultEditingKey =(key)=>{
-      if(form.getFieldError('product'+key).length === 0){
-        dispatch(orderActions.setDefaultEditingKey());
-      }
-    }
-    
-    useEffect(()=>{
-      dispatch(orderActions.loadListProduct());
-    },[]);
-    
-    const renderProductCart=()=>{
-        return productsCart.map(item => {return {...item, total: (item.price*item.quantity*((100-item.discount)/100))}})
-    }
-
-    const renderOptions=()=>{
-      return ListProduct.map(item=> 
-        <Option key={item.key} value={item.id} >{item.name}</Option>)
+    const setDefaultEditingKey =()=>{
+        setEditingKey('');
     }
 
     const clickButtonNewHandler=()=>{
-      dispatch(orderActions.addProductCartDefault());
-      setEditingKey(productsCart.length+1)
+      setEditingKeyHandler(productCart.length+1)
+      setProductCart(pre=>{
+        return [...pre, {
+            productId:'',
+            price:0,
+            quantity:1,
+            discount:0,
+            total:0
+        }]
+      })
+      form.setFieldsValue({
+        productId:'',
+        price:0,
+        quantity:1,
+        discount:0,
+        total:0
+      });
+      setEditingKeyHandler(productCart.length+1)
     }
 
-    const clickButtonDeleteHandler = (value) => {
-        dispatch(orderActions.removeProductCart(value));
-        dispatch(orderActions.setDefaultEditingKey());
-    };
-  
-    const changeValueOfQuantityHandler=(value)=>{
-      dispatch(orderActions.changeQuantity({index:editingKey, quantity: value}));
-    }
-
-    const changeValueOfDiscountHandler=(value)=>{
-      dispatch(orderActions.changeDiscount({index:editingKey, discount: value}))
-    }
+    useEffect(()=>{
+      loadDataProduct();
+    },[]);
     
+    const loadDataProduct=async()=>{
+      const response = await productAPI.getProducts();
+      const data = response.data;
+      const filter =Object.keys(data).filter(e=> data[e].isDeleted===false);
+      setProducts(filter.map((e,index)=>{return {id:e , ...data[e], key:(index+1)}}));
+    }
+    const renderProductCart=()=>{
+        return productCart.map((item, index) => {return {...item, key:index+1, total: (item.price*item.quantity*((100-item.discount)/100))}})
+    }
+
+    
+
     const columns = [
         {
           title: 'ID',
@@ -69,123 +149,93 @@ const ProductOrder = ({form}) => {
           width: '5%',
         },
         {
-        title: 'Product',
-        dataIndex: 'productName',
-        width: '35%',
-        render:(text, record)=>{
-          return isEditing(record) ?
-          <Form.Item  
-            name={`product${record.key}`}
-            rules={[
-              {
-                required: true,
-                message: 'Please select product!',
-              },
-              {
-                validator:async (rule, value) => {
-                  const index =  productsCart.filter(e=>e.productId === value);
-                  console.log(index);
-                  if(index.length > 1){
-                    throw new Error('Product be selected');
-                  }
-                }
-              }
-
-            ]}>
-            <Select
-              showSearch
-              style={{ width: "100%" }}
-              placeholder="Select a product"
-              optionFilterProp="children"
-              onChange={productChangehandler}
-              onBlur={()=>setDefaultEditingKey(record.key)}
-              value={record.productId}
-                        // filterOption={filterOption}
-                        
-              >
-                {renderOptions()}
-            </Select>
-          </Form.Item>:
-          <div onClick={()=>setEditingKey(record.key)}>{record.productName ? record.productName: 'Select a product' }</div>
-            }
+          title: 'Product',
+          dataIndex: 'productId',
+          width: '35%',
+          editable:true
           },
         {
           title: 'Price',
           dataIndex: 'price',
           width: '20%',
-          editable: true,
           },
         {
           title: 'Quantity',
           dataIndex: 'quantity',
           width: '10%',
-          render:(text, record)=>{
-            return isEditing(record) ?
-                <InputNumber max={100} min={1} 
-                onBlur={setDefaultEditingKey}
-                onChange={changeValueOfQuantityHandler}
-                defaultValue={record.quantity}
-                /> : <div onClick={()=>setEditingKey(record.key)}>{record.quantity}</div>
-            }
+          editable: true,
           },
         {
           title: 'Discount',
           dataIndex: 'discount',
           width: '10%',
-          render:(text, record)=>{
-            return isEditing(record) ?
-              <InputNumber  max={100} min={0}
-              onBlur={setDefaultEditingKey}
-              onChange={changeValueOfDiscountHandler}
-              defaultValue={record.discount}/> :
-              <div onClick={()=>setEditingKey(record.key)}>{record.discount}</div>
-            }
+          editable: true,
           },
         {
             title: 'Total',
             dataIndex: 'total',
             width: '40%',
-            editable: true,
-          },
+        },
           
         {
-          title: 'operation',
-          dataIndex: 'operation',
-          render: (_, record) => {
-              return(
-                <Popconfirm title="Sure to cancel?" onConfirm={() => clickButtonDeleteHandler(record.productId)}>
-                  <Typography.Link disabled={editingKey && editingKey!==record.key? true : false}>
-                      Delete
-                  </Typography.Link>
-                </Popconfirm>
+            title: 'operation',
+            dataIndex: 'operation',
+            width: '40%',
+            render: (_, record) => {
+              const editable = isEditing(record);
+              return editable ? (
+                <span>
+                  <a
+                    onClick={() => save(record)}
+                    style={{
+                      marginRight: 8,
+                    }}
+                  >
+                    Save
+                  </a>
+                  <Popconfirm title="Sure to cancel?" onConfirm={setDefaultEditingKey}>
+                    <a>Cancel</a>
+                  </Popconfirm>
+                </span>
+              ) : (
+                <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+                  Edit
+                </Typography.Link>
               );
+            },
           },
-        },
     ];
-    // const mergedColumns = columns.map((col) => {
-    //     if (!col.editable) {
-    //     return col;
-    //     }
+    const mergedColumns = columns.map((col) => {
+        if (!col.editable) {
+        return col;
+        }
 
-    //     return {
-    //     ...col,
-    //     onCell: (record) => ({
-    //         record,
-    //         inputType: col.dataIndex === 'age' ? 'number' : 'text',
-    //         dataIndex: col.dataIndex,
-    //         title: col.title,
-    //         editing: isEditing(record),
-    //     }),
-    //     };
-    // });
+        return {
+        ...col,
+        onCell: (record) => ({
+            record,
+            inputType: col.dataIndex === 'productId' ? 'select' : 'number',
+            dataIndex: col.dataIndex,
+            title: col.title,
+            editing: isEditing(record),
+            dataOption: products,
+            productCart:productCart
+        }),
+        };
+    });
     return (
         <>
-          <Button type="primary" onClick={clickButtonNewHandler} disabled={editingKey || productsCart.length !==0 && productsCart[productsCart.length-1].productId ==='' ? true: false}>New</Button>
-          <h3 style={{marginTop:"2%"}}> Total: {dataStore.order.total}</h3>
+          <Button type="primary" onClick={clickButtonNewHandler} disabled={editingKey ? true: false}>New</Button>
+          <h3 style={{marginTop:"2%"}}> Total: {total()}</h3>
           <Table
+              components={{
+                body: {
+                  cell: EditableCell,
+                },
+              }}
               bordered
               dataSource={renderProductCart()}
-              columns={columns}
+              columns={mergedColumns}
               rowClassName="editable-row"
               // pagination={{
               // onChange: cancel,

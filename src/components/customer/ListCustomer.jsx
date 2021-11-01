@@ -3,7 +3,7 @@ import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import customerAPI from '../../api/customerAPI';
-import orderAPI from '../../api/OrderAPI';
+import orderAPI from '../../api/orderAPI';
 
 const ListCustomer =()=>{
     const history = useHistory();
