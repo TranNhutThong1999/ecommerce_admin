@@ -99,6 +99,7 @@ const ProductOrder = ({form, onChange}) => {
       onChange(productCart)
     const setEditingKeyHandler =(value)=>{
         setEditingKey(value)
+       
     }
 
     const setDefaultEditingKey =()=>{
@@ -139,7 +140,14 @@ const ProductOrder = ({form, onChange}) => {
     const renderProductCart=()=>{
         return productCart.map((item, index) => {return {...item, key:index+1, total: (item.price*item.quantity*((100-item.discount)/100))}})
     }
-
+    const cancelNewProduct =()=>{
+      setDefaultEditingKey();
+      setProductCart(prev=>{
+        let tranfer = [...prev];
+        tranfer = tranfer.filter((e,index)=> index !== tranfer.length-1);
+        return [...tranfer];
+      })
+    }
     
 
     const columns = [
@@ -193,7 +201,7 @@ const ProductOrder = ({form, onChange}) => {
                   >
                     Save
                   </a>
-                  <Popconfirm title="Sure to cancel?" onConfirm={setDefaultEditingKey}>
+                  <Popconfirm title="Sure to cancel?" onConfirm={cancelNewProduct}>
                     <a>Cancel</a>
                   </Popconfirm>
                 </span>
