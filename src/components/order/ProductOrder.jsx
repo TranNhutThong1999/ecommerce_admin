@@ -16,6 +16,7 @@ const EditableCell = ({
   ...restProps
 }) => {
   const inputNode = inputType==='select' ? <SelectForm dataOption={dataOption} /> : <InputNumber min="0" />;
+  console.log(record)
   return (
     <td {...restProps}>
       {editing ? (
@@ -44,7 +45,8 @@ const EditableCell = ({
           {inputNode}
         </Form.Item>
       ) : (
-        children
+        inputType==='select' ? record.productName :children
+         
       )}
     </td>
   );
@@ -78,6 +80,7 @@ const ProductOrder = ({form, onChange}) => {
           
             const data ={
             productId: product[0].id,
+            productName: product[0].name,
             price: product[0].price,
             discount: dataForm.discount,
             quantity: dataForm.quantity
@@ -111,6 +114,7 @@ const ProductOrder = ({form, onChange}) => {
       setProductCart(pre=>{
         return [...pre, {
             productId:'',
+            productName:'',
             price:0,
             quantity:1,
             discount:0,
@@ -119,6 +123,7 @@ const ProductOrder = ({form, onChange}) => {
       })
       form.setFieldsValue({
         productId:'',
+        productName:'',
         price:0,
         quantity:1,
         discount:0,

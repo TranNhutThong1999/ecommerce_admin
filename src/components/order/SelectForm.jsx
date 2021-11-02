@@ -3,7 +3,7 @@ const SelectForm =({value, onChange, dataOption}, props)=>{
     const { Option } = Select;
     const renderDataOption=()=>{
         return dataOption.map(item=> 
-            <Option key={item.key} value={item.id} >{item.name}</Option>)
+            <Option key={item.key} value={item.id} title={item.name} >{item.name}</Option>)
     }
     const changeValueHandler =(e)=>{
         onChange(e)

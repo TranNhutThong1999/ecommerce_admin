@@ -48,7 +48,9 @@ const CustomerDetail=()=>{
     const onFinish=({name, phone, date, address, gender})=>{
         console.log(date);
         const value ={
-            name, phone, date, address, gender, isDeleted:false
+            name, phone, 
+            //date,
+             address, gender, isDeleted:false
         }
         if (param.customerId) {
             customerAPI.editOneCustomer(param.customerId, value);
@@ -59,7 +61,7 @@ const CustomerDetail=()=>{
         success()
         form.setFieldsValue({
             name:'',
-                date:0,
+               // date:0,
                 gender:'Female',
                 address:'',
                 phone:''
@@ -115,17 +117,18 @@ const CustomerDetail=()=>{
             >
                 <Input />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
                 name={'date'}
                 label="Date"
+                
                 // rules={[
                 //     {
                 //         required: true,
                 //     },
                 // ]}
             >
-                {/* <DatePicker format={customFormat}/>  */}
-            </Form.Item>
+                <DatePicker format="YYYY/MM/DD" onChange={(e)=> console.log(e)}/> 
+            </Form.Item> */}
             <Form.Item
                 name={'gender'}
                 label="Gender"
