@@ -76,8 +76,8 @@ const CustomerOrder =({form})=>{
                         {renderOptions()}
                     </Select>
                     </Form.Item>
-                    <Form.Item hidden={true} name="phone"> <Input /></Form.Item>
-                    <Form.Item hidden={true} name="nameCustomer"> <Input /></Form.Item>
+                    {/* <Form.Item hidden={true} name="phone"> <Input /></Form.Item>
+                    <Form.Item hidden={true} name="nameCustomer"> <Input /></Form.Item> */}
                     {customer && <Row style={{marginTop:"5%"}}>
                         <Col span={16} style={{display:"flex", flexWrap:"wrap"}}>
                             <Descriptions title="ID" style={{width:"50%"}}> 

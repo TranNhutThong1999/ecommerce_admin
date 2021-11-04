@@ -2,6 +2,7 @@ import { Form, Input, InputNumber, Button, message, Radio, DatePicker  } from 'a
 import { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router';
 import customerAPI from '../../api/customerAPI';
+
 const layout = {
     labelCol: {
         span: 6,

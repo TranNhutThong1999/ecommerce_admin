@@ -9,20 +9,42 @@ const ListOrder = () => {
 	const { TabPane } = Tabs;
 	const history = useHistory();
 	const [form] = Form.useForm();
+	let editForm=null;
 
-	const submitFormHandler=(value)=>{
-		
-		const dataMain ={
-			 code:Math.floor(100000 + Math.random() * 900000),
-			 address: value.address,
-			 createTime: new Date().getTime(),
-			 customerId: value.customerId,
-			 information: `${value.nameCustomer} - ${value.phone} `,
-			 products: value.products,
-			 total:total(value.products),
-			 isDeleted:false		
+	const validateForm= async()=>{
+		try{
+		 await editForm?.validateFields()
+		 await form.validateFields()
+		form.submit();
+		}catch(err){
+			console.log('error');
 		}
-		addOrderAPI(dataMain)
+	}
+	const setEditFormIntance=(value)=>{
+		editForm= value
+	}
+
+	const onFinishFailed =(values)=>{
+		console.log("err");
+	}
+	const submitFormHandler=(values)=>{
+		// form.setFieldsValue({
+		// 	customerId:'55',
+		// 	customerName:'4'
+		// })
+		console.log(values);
+
+		// const dataMain ={
+		// 	 code:Math.floor(100000 + Math.random() * 900000),
+		// 	 address: value.address,
+		// 	 createTime: new Date().getTime(),
+		// 	 customerId: value.customerId,
+		// 	 information: `${value.nameCustomer} - ${value.phone} `,
+		// 	 products: value.products,
+		// 	 total:total(value.products),
+		// 	 isDeleted:false		
+		// }
+		// addOrderAPI(dataMain)
 		
 	}
 	const addOrderAPI = async(data)=>{
@@ -36,22 +58,28 @@ const ListOrder = () => {
 		  }, 0);
 		} return 0
 	  };
+	const fieldChangeHandler =(changedFields, allFields)=>{
+
+	}
 	return (
 		<BorderLayout>
-			<Form form={form} name="ds"  onFinish={submitFormHandler} >
+			<Form form={form} onFinishFailed={onFinishFailed} onFinish={submitFormHandler}
+			onFieldsChange={fieldChangeHandler} >
 				<Tabs defaultActiveKey="1">
 					<TabPane tab="Customer info" key="1">
-
 						<CustomerOrder form={form} />
 					</TabPane>
 					<TabPane tab="Product" key="2">
-						<Form.Item name="products">
-							<ProductOrder form={form} />
+					<Form.Item name="products" 
+						rules={[{
+							required: true, message:'Product is required'
+						}]}>
+						<ProductOrder form={form} editableForm={setEditFormIntance} />
 						</Form.Item>
 					</TabPane>
 				</Tabs> 
 				<Form.Item>
-					<Button htmlType="submit"  icon={<SaveOutlined />}
+					<Button icon={<SaveOutlined />} onClick={validateForm}
 					 style={{float:"right", margin:"2% 2% 2% 0"}}
 					 danger
 					 type="primary"
