@@ -5,7 +5,6 @@ const SelectForm =({value, onChange, dataOption ,onUpdateValue})=>{
         return dataOption.map(item=> 
             <Option key={item.key} value={item.productId} title={item.name} >{item.name}</Option>)
     }
-    //console.log({dataOption});
     const changeValueHandler =(e)=>{
         onChange(e);      
     }
@@ -18,8 +17,7 @@ const SelectForm =({value, onChange, dataOption ,onUpdateValue})=>{
             optionFilterProp="children"
             onChange={changeValueHandler}
             value={value}
-            //filterOption={filterOption}
-            >
+            > 
             {renderDataOption()}
         </Select>
     );

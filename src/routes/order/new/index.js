@@ -13,20 +13,22 @@ const ListOrder = () => {
 
 	const validateForm= async()=>{
 		try{
-		 await editForm?.validateFields()
-		 await form.validateFields()
+		 await editForm?.validateFields();
+		// await editForm?.submit();
+		 await form.validateFields();
 		form.submit();
 		}catch(err){
 			console.log('error');
+			console.log(err);
 		}
 	}
 	const setEditFormIntance=(value)=>{
 		editForm= value
 	}
 
-	const onFinishFailed =(values)=>{
-		console.log("err");
-	}
+	// const onFinishFailed =(values)=>{
+	// 	console.log("err");
+	// }
 	const submitFormHandler=(values)=>{
 		// form.setFieldsValue({
 		// 	customerId:'55',
@@ -58,13 +60,11 @@ const ListOrder = () => {
 		  }, 0);
 		} return 0
 	  };
-	const fieldChangeHandler =(changedFields, allFields)=>{
 
-	}
 	return (
 		<BorderLayout>
-			<Form form={form} onFinishFailed={onFinishFailed} onFinish={submitFormHandler}
-			onFieldsChange={fieldChangeHandler} >
+			<Form form={form}  onFinish={submitFormHandler}
+			>
 				<Tabs defaultActiveKey="1">
 					<TabPane tab="Customer info" key="1">
 						<CustomerOrder form={form} />

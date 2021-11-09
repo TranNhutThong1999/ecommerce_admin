@@ -5,6 +5,7 @@ import { InputNumber } from 'antd';
 import useProductList from "./editTable/useProductList"
 import { useDispatch, useSelector } from "react-redux";
 import { orderActions } from "../../redux/store/OrderSlice";
+import Form from "rc-field-form/es/Form";
 
 const ProductOrder=({form, onChange, editableForm})=>{
   const [productCart, setProductCart]=useState([]);
@@ -14,12 +15,19 @@ const ProductOrder=({form, onChange, editableForm})=>{
 
   useEffect(()=>{
     dispatch(orderActions.loadListProduct());
+    // setProductCart([{
+    //   key:1,
+    //   productId:'-MnOI7wA23aDkbm8TVwt',
+    //   name: "TV LGD",
+    //   price:500,
+    //   amount:1,
+    //   discount:0
+    // }])
   },[]);
 
-  const renderProductCart=()=>{
-    return productCart.map((item, index) => {return {...item, key:index+1}})
-  }
-
+  // const renderProductCart=()=>{
+  //   return productCart.map((item, index) => {return {...item, key:index+1}})
+  // }
   const totalOrder = () => {
       if(productCart.length> 0){
         return productCart.reduce((x1, x2) => {
@@ -36,10 +44,18 @@ const ProductOrder=({form, onChange, editableForm})=>{
   }
 
   const onChangeHandler=(value)=>{
+      console.log("onchange", value);
       setProductCart(value)
       onChange(value)
   }
 
+  const trigger={
+    'productId': (form, index, oldData)=>{
+      const newData = {...oldData, amount: oldData.amount? oldData.amount:1, discount: oldData.discount? oldData.discount:0}
+      index? form.setFieldsValue({[index]: newData}) : form.setFieldsValue(newData)
+      return newData;
+    }
+  }
   const columns = [
     {
       title: 'ID',
@@ -55,19 +71,21 @@ const ProductOrder=({form, onChange, editableForm})=>{
       rules:[{
         required: true, message:'Required'
       },
-      {
-        validator:async (rule, value)=>{
-          const products = productCart.find(e=> e.productId === value);
-          if(products){
+      (form)=>( {
+        validator:async (rule, value)=>{ 
+          const index = +rule.field.split('.')[0];   
+          const products = productCart.filter((e,i)=> i!==index &&e.productId === value);
+          if( products?.length>=1){
             throw new Error("Duplicated")
           }
         }
-      }
+      })
       ],
       render:(_,record)=>{
-        return record.name
+        return record.name;
       }
       },
+      
     {
       title: 'Price',
       dataIndex: 'price',
@@ -85,13 +103,14 @@ const ProductOrder=({form, onChange, editableForm})=>{
       rules:[{
         required: true, message:'Required'
       }]
+     
       },
     {
       title: 'Discount',
       dataIndex: 'discount',
       width: '10%',
       editable: true,
-      type:<InputNumber min={0} /> ,
+      type:<InputNumber min={0} max={100} /> ,
       rules:[{
         required: true, message:'Required'
       }]
@@ -116,10 +135,11 @@ const ProductOrder=({form, onChange, editableForm})=>{
           <h3 style={{marginTop:"2%"}}> Total: {totalOrder()}</h3>
           <EditTable  
             columns={columns} 
-            dataSource={renderProductCart()} 
+            dataSource={productCart} 
             onChangeHandler={onChangeHandler}
             editableForm={editableForm}
-            mode={'single'}
+            mode={'multiple'} 
+            trigger={trigger}
             />
         </>
   );
